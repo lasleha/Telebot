@@ -1,5 +1,7 @@
 import telebot
 from telebot import types
+import threading
+import sql
 
 bot_token = '6131879353:AAGKP8nmK-6kksTxJWtymxCBgIWCIihOchs'
 
@@ -35,10 +37,11 @@ def get_text_messages(message):
         bot.send_message(message.from_user.id, f'Ваш id: {message.from_user.id}')
 
     elif message.text == 'Избранное':
-        bot.send_photo(chat_id=message.chat.id,
-                       caption=f'1/{len(photos)}',
-                       photo=open(photos[0], "rb"),
-                       reply_markup=gen_markup())
+        if sql.CheckUsr():
+            bot.send_photo(chat_id=message.chat.id,
+                           caption=f'1/{len(photos)}',
+                           photo=open(photos[0], "rb"),
+                           reply_markup=gen_markup())
 
     else:
         bot.send_message(message.from_user.id, 'Извините, запрос не распознан')

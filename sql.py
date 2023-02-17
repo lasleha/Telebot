@@ -8,6 +8,18 @@ password = 'elmelm327327'
 cnxn = pyodbc.connect('DRIVER={ODBC Driver 18 for SQL Server};SERVER='+server+';DATABASE='+database+';ENCRYPT=yes;UID='+username+';PWD='+ password)
 
 
+def CheckUsr(user_id):
+    cursor = cnxn.cursor()
+    cursor.execute('select PhoneNumber from dbo.AspNetUsers')
+    users = []
+    for row in cursor.fetchall():
+        users.append(row)
+    if user_id in users:
+        return True
+    else:
+        return False
+
+
 def Favorit(user_id):
     cursor = cnxn.cursor()
     cursor.execute('select * from dbo.Favorites')
@@ -37,16 +49,19 @@ def Favorit(user_id):
                 'price': float(row[4])*float(row[5])
             }
             info.append(l)
+    cursor.execute('select * from dbo.Favorites')
     return info
 
 
 def Check():
     #threading.Timer(1800.0, Check)
     cursor = cnxn.cursor()
-    cursor.execute('select IsChanged from dbo.Favorites')
+    cursor.execute('select StateId, IsChanged from dbo.Favorites')
+    lib = []
     for row in cursor.fetchall():
-        if row:
-            
+        if row[1]:
+            lib.append(row[0])
+    return lib
 
 
 
@@ -57,5 +72,5 @@ def Check():
 
 
 
-
+#5708104256
 #6131879353:AAGKP8nmK-6kksTxJWtymxCBgIWCIihOchs

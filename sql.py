@@ -46,21 +46,26 @@ def Favorit(user_id):
                 'are_ready': row[8],
                 'number': row[2],
                 'type': row[7],
-                'price': float(row[4])*float(row[5])
+                'price': float(row[4])*float(row[5]),
+                'image': ''
             }
             info.append(l)
-    cursor.execute('select * from dbo.Favorites')
+    cursor.execute('select _Image, StateId from dbo.Images')
+   # for row in cursor.fetchall():
+
     return info
 
 
 def Check():
     #threading.Timer(1800.0, Check)
     cursor = cnxn.cursor()
-    cursor.execute('select StateId, IsChanged from dbo.Favorites')
-    lib = []
-    for row in cursor.fetchall():
-        if row[1]:
-            lib.append(row[0])
+    cursor.execute('select UserId, StateId, IsChanged from dbo.Favorites')
+    lib = {
+
+    }
+   # for row in cursor.fetchall():
+      #  if row[2]:
+
     return lib
 
 

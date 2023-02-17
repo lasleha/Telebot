@@ -37,7 +37,7 @@ def get_text_messages(message):
         bot.send_message(message.from_user.id, f'Ваш id: {message.from_user.id}')
 
     elif message.text == 'Избранное':
-        if sql.CheckUsr():
+        if sql.CheckUsr(message.chat.id):
             bot.send_photo(chat_id=message.chat.id,
                            caption=f'1/{len(photos)}',
                            photo=open(photos[0], "rb"),
@@ -73,6 +73,11 @@ def callback_query(call):
 
         bot.edit_message_caption(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                  caption=f'{i}/{len(photos)}', reply_markup=gen_markup())
+
+
+
+def ho():
+    threading.Timer(1800.0, ho)
 
 
 if __name__ == '__main__':

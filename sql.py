@@ -9,7 +9,7 @@ cnxn = pyodbc.connect(
     'DRIVER={ODBC Driver 18 for SQL Server};SERVER=' + server + ';DATABASE=' + database + ';ENCRYPT=yes;UID=' + username + ';PWD=' + password)
 
 
-def CheckUsr(user_id):
+def check_usr(user_id):
     cursor = cnxn.cursor()
     cursor.execute('select PhoneNumber from dbo.AspNetUsers')
     users = []
@@ -21,7 +21,7 @@ def CheckUsr(user_id):
         return False
 
 
-def Favorit(user_id):
+def favorite(user_id):
     cursor = cnxn.cursor()
     cursor.execute('select * from dbo.Favorites')
     states_id = []
@@ -57,7 +57,7 @@ def Favorit(user_id):
     return info
 
 
-def Check():
+def check():
     # threading.Timer(1800.0, Check)
     cursor = cnxn.cursor()
     cursor.execute('select UserId, StateId, IsChanged from dbo.Favorites')

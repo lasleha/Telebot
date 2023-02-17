@@ -35,7 +35,7 @@ def favorite(user_id):
     cursor.execute('select * from dbo.Favorites')
     states_id = []
     for row in cursor.fetchall():
-        if row[0] == str(user_id) and row[2] == 1:
+        if row[0] == str(user_id):
             states_id.append(row[1])
     cursor = cnxn.cursor()
     cursor.execute('select * from dbo.RealEstates')
@@ -45,7 +45,6 @@ def favorite(user_id):
     for row in cursor.fetchall():
         if row[0] in states_id:
             l = {
-                'id_state': row[0],
                 'address': row[1],
                 'pr2m': row[4],
                 'area': row[5],
@@ -58,18 +57,20 @@ def favorite(user_id):
                 'type': row[7],
                 'price': float(row[4]) * float(row[5]),
                 'image': ''
+                #добавить ремонт
             }
             info[row[0]] = l
     cursor.execute('select _Image, StateId from dbo.Images')
-    a = ''
+    a = []
     for row in cursor.fetchall():
-        if row[1] != a:
-            a = row
-            if a in info.keys():
+        if row[1] not in a:
+            a.append(row[1])
+            if row[1] in info.keys():
                 l = info[row[1]]
                 l['image'] = img(row[0])
                 info[row[1]] = l
     return info
+#l = info['']
 
 
 def check():
@@ -87,6 +88,8 @@ def check():
                 l = []
                 l.append(row[1])
                 lib[row[0]] = l
+    cursor.execute(f'update dbo.Favorites set IsChange = 0')
+    cnxn.commit()
     return lib
 
 # 5708104256

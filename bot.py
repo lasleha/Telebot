@@ -1,6 +1,5 @@
 import telebot
 from telebot import types
-import threading
 import sql
 
 bot_token = '6131879353:AAGKP8nmK-6kksTxJWtymxCBgIWCIihOchs'
@@ -9,18 +8,14 @@ bot = telebot.TeleBot(bot_token)
 
 info = dict()
 
-# photos = [
-#     r'C:\Users\to_se\OneDrive\Изображения\GameCenter\AtomicHeart\AtomicHeart_sample.jpg',
-#     r'C:\Users\to_se\OneDrive\Изображения\GameCenter\LostArk\LostArk_sample.jpg'
-# ]
-
 
 @bot.message_handler(commands=['start'])
 def start(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     my_id_button = types.KeyboardButton('Мой id')
     favorites_button = types.KeyboardButton('Избранное')
-    markup.add(my_id_button, favorites_button)
+    help_button = types.KeyboardButton('Техподдержка')
+    markup.add(my_id_button, favorites_button, help_button)
     bot.send_message(message.from_user.id, "👋 Привет! Я твой бот-помощник!", reply_markup=markup)
 
 
@@ -77,29 +72,31 @@ def get_text_messages(message):
 
     chat_id = message.chat.id
 
-    if message.text == 'Мой id':
-        bot.send_message(chat_id, f'Ваш id: {chat_id}')
+    match message.text:
 
-    elif message.text == 'Избранное':
-        if sql.check_usr(chat_id):
+        case 'Мой id':
+            bot.send_message(chat_id, f'Ваш id: {chat_id}')
 
-            info = sql.favorite(chat_id)
+        case 'Избранное':
+            if sql.check_usr(chat_id):
 
-            if len(info) != 0:
+                info = sql.favorite(chat_id)
 
-                caption = create_caption(info[0])
+                if len(info) != 0:
 
-                # for key, value in current_object.items():
-                #     if key != 'image' and value != '':
-                #         caption += f"{key}: {value}\n"
+                    caption = create_caption(info[0])
 
-                bot.send_photo(chat_id=chat_id,
-                               caption=f'1 из {len(info)}\n{caption}',
-                               photo=open(info[0]['image'], "rb"),
-                               reply_markup=gen_markup())
+                    bot.send_photo(chat_id=chat_id,
+                                   caption=f'1 из {len(info)}\n{caption}',
+                                   photo=open(info[0]['image'], "rb"),
+                                   reply_markup=gen_markup())
 
-    else:
-        bot.send_message(chat_id, 'Извините, запрос не распознан')
+        case 'Техподдержка':
+            bot.send_message(chat_id, 'Ожидайте оператора')
+            # Вызов оператора технической поддержки
+
+        case _:
+            bot.send_message(chat_id, 'Извините, запрос не распознан')
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -132,10 +129,6 @@ def callback_query(call):
 
         bot.edit_message_caption(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                  caption=f'{i}/{len(info)}\n{caption}', reply_markup=gen_markup())
-
-
-def ho():
-    threading.Timer(1800.0, ho)
 
 
 if __name__ == '__main__':

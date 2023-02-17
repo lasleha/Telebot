@@ -72,31 +72,31 @@ def get_text_messages(message):
 
     chat_id = message.chat.id
 
-    match message.text:
+    text = message.text
 
-        case 'Мой id':
-            bot.send_message(chat_id, f'Ваш id: {chat_id}')
+    if text == 'Мой id':
+        bot.send_message(chat_id, f'Ваш id: {chat_id}')
 
-        case 'Избранное':
-            if sql.check_usr(chat_id):
+    elif text == 'Избранное':
+        if sql.check_usr(chat_id):
 
-                info = sql.favorite(chat_id)
+            info = sql.favorite(chat_id)
 
-                if len(info) != 0:
+            if len(info) != 0:
 
-                    caption = create_caption(info[0])
+                caption = create_caption(info[0])
 
-                    bot.send_photo(chat_id=chat_id,
-                                   caption=f'1 из {len(info)}\n{caption}',
-                                   photo=open(info[0]['image'], "rb"),
-                                   reply_markup=gen_markup())
+                bot.send_photo(chat_id=chat_id,
+                               caption=f'1 из {len(info)}\n{caption}',
+                               photo=open(info[0]['image'], "rb"),
+                               reply_markup=gen_markup())
 
-        case 'Техподдержка':
-            bot.send_message(chat_id, 'Ожидайте оператора')
-            # Вызов оператора технической поддержки
+    elif text == 'Техподдержка':
+        bot.send_message(chat_id, 'Ожидайте оператора')
+        # Вызов оператора технической поддержки
 
-        case _:
-            bot.send_message(chat_id, 'Извините, запрос не распознан')
+    else:
+        bot.send_message(chat_id, 'Извините, запрос не распознан')
 
 
 @bot.callback_query_handler(func=lambda call: True)

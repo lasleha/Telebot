@@ -81,9 +81,9 @@ def get_text_messages(message):
         bot.send_message(chat_id, f'Ваш id: {chat_id}')
 
     elif message.text == 'Избранное':
-        if sql.CheckUsr(chat_id):
+        if sql.check_usr(chat_id):
 
-            info = sql.Favorit(chat_id)
+            info = sql.favorite(chat_id)
 
             if len(info) != 0:
 

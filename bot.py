@@ -5,7 +5,7 @@ from telebot import types
 from multiprocessing import Process
 from time import sleep
 
-bot_token = '6260014054:AAFWq1zUhusXxxuS1oj2cRtOl4Z9LdI-qFM'
+bot_token = '6021080790:AAHiBSG6recf1UlWb96Zjo2HsEhAoRj9Fl0'
 
 bot = telebot.TeleBot(bot_token)
 

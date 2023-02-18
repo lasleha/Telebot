@@ -9,7 +9,8 @@ database = 'db_a93836_invest'
 username = 'db_a93836_invest_admin'
 password = 'elmelm327327'
 cnxn = pyodbc.connect(
-    'DRIVER={ODBC Driver 18 for SQL Server};SERVER=' + server + ';DATABASE=' + database + ';ENCRYPT=yes;UID=' + username + ';PWD=' + password)
+    'DRIVER={ODBC Driver 18 for SQL Server};SERVER=' + server + ';DATABASE=' + database + ';ENCRYPT=yes;UID=' +
+    username + ';PWD=' + password)
 
 
 def img(path):
@@ -45,7 +46,7 @@ def favorite(user_name, push):
                 'area': row[5],
                 'stage': row[3],
                 'perspective': row[12],
-                'risk': '',
+                'risk': row[20],
                 'usage': row[6],
                 'are_ready': row[8],
                 'number': row[2],

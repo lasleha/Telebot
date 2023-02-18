@@ -154,11 +154,13 @@ def update():
     while True:
         sleep(30)
         lib = sql.check()
-        if len(lib) != 0:
-            for key, value in lib.items():
+        for key, value in lib.items():
+            if len(value)!=0:
+                bot.send_message(key, 'Обратите внимание на обновление вашего избранного')
+                caption = create_caption(value[0])
                 bot.send_photo(chat_id=key,
-                               caption=f'1 из {len(info)}\n{caption}',
-                               photo=info[0]['image'],
+                               caption=f'1 из {len(value)}\n{caption}',
+                               photo=value[0]['image'],
                                reply_markup=gen_markup())
 
 

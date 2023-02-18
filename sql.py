@@ -33,12 +33,10 @@ def favorite(user_name, push):
     for row in cursor.fetchall():
         if (user_name == row[1]) and (not push or row[2]):
             states_id.append(row[0])
-    print(states_id)
     cursor = cnxn.cursor()
     cursor.execute('select * from dbo.RealEstates')
     info = dict(dict())
     for row in cursor.fetchall():
-        print(row)
         if row[0] in states_id:
             l = {
                 'address': row[1],

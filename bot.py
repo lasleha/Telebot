@@ -6,7 +6,6 @@ from telebot import types
 from multiprocessing import Process, Value, current_process
 from time import sleep, ctime
 
-
 bot_token = '6131879353:AAGKP8nmK-6kksTxJWtymxCBgIWCIihOchs'
 
 bot = telebot.TeleBot(bot_token)
@@ -33,7 +32,6 @@ def gen_markup():
 
 
 def create_caption(co):
-
     address = ""
 
     if co['address'] is not None:
@@ -80,7 +78,6 @@ def create_caption(co):
 
 @bot.message_handler(content_types=['text'])
 def get_text_messages(message):
-
     chat_id = message.chat.id
 
     text = message.text
@@ -98,7 +95,6 @@ def get_text_messages(message):
             info = sql.favorite(user_name, False)
 
             if len(info) != 0:
-
                 caption = create_caption(info[0])
                 bot.send_photo(chat_id=chat_id,
                                caption=f'1 из {len(info)}\n{caption}',
@@ -115,34 +111,38 @@ def get_text_messages(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
-
     i = int(call.message.caption[:call.message.caption.find(' ')])
 
     if call.data == "cb_left":
 
         if i != 1:
+
             i -= 1
+            caption = create_caption(info[i - 1])
 
-        caption = create_caption(info[i - 1])
+            bot.edit_message_media(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                   media=types.InputMediaPhoto(info[i - 1]['image']), reply_markup=gen_markup())
 
-        bot.edit_message_media(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                               media=types.InputMediaPhoto(info[i - 1]['image']), reply_markup=gen_markup())
-
-        bot.edit_message_caption(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                 caption=f'{i} из {len(info)}\n{caption}', reply_markup=gen_markup())
+            bot.edit_message_caption(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                     caption=f'{i} из {len(info)}\n{caption}', reply_markup=gen_markup())
+        else:
+            return
 
     elif call.data == "cb_right":
 
         if i != len(info):
+
             i += 1
+            caption = create_caption(info[i - 1])
 
-        caption = create_caption(info[i - 1])
+            bot.edit_message_media(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                   media=types.InputMediaPhoto(info[i - 1]['image']), reply_markup=gen_markup())
 
-        bot.edit_message_media(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                               media=types.InputMediaPhoto(info[i - 1]['image']), reply_markup=gen_markup())
+            bot.edit_message_caption(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                     caption=f'{i} из {len(info)}\n{caption}', reply_markup=gen_markup())
 
-        bot.edit_message_caption(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                 caption=f'{i} из {len(info)}\n{caption}', reply_markup=gen_markup())
+        else:
+            return
 
 
 def bot_work():
@@ -150,20 +150,20 @@ def bot_work():
 
 
 def update():
-
     while True:
         sleep(30)
         lib = sql.check()
-        if len(lib) != 0:
-            for key, value in lib.items():
-                bot.send_photo(chat_id=key,
-                               caption=f'1 из {len(info)}\n{caption}',
-                               photo=info[0]['image'],
-                               reply_markup=gen_markup())
+        for key, value in lib.items():
+            if len(value) != 0:
+                bot.send_message(key, "Обратите внимание на обновление вашего избранного")
+                for co in value:
+                    caption = create_caption(co)
+                    bot.send_photo(chat_id=key,
+                                   caption=caption,
+                                   photo=co['image'])
 
 
 if __name__ == '__main__':
-
     pr_bot = Process(target=bot_work)
     pr_update = Process(target=update)
 

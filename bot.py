@@ -91,6 +91,9 @@ def get_text_messages(message):
                                photo=info[0]['image'],
                                reply_markup=gen_markup())
 
+        else:
+            bot.send_message(chat_id, "Пожалуйста, авторизуйтесь на сайте через ваш telegram-id")
+
     elif text == 'Техподдержка':
         bot.send_message(chat_id, 'Ожидайте оператора')
         # Вызов оператора технической поддержки

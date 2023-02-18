@@ -2,6 +2,8 @@ import pyodbc
 import PIL.Image as Image
 import io
 
+from datetime import datetime
+
 server = 'SQL8004.site4now.net'
 database = 'db_a93836_invest'
 username = 'db_a93836_invest_admin'
@@ -53,13 +55,17 @@ def favorite(user_name, push):
             }
             info[row[0]] = l
 
-    cursor.execute('select _Image, StateId from dbo.Images')
-    a = []
+    cursor.execute('select _Image, StateId, DateAdded from dbo.Images')
+    a = dict()
     for row in cursor.fetchall():
-        if row[1] not in a:
-            a.append(row[1])
-            if row[1] in info:
-                info[row[1]]['image'] = img(row[0])
+        dt = datetime.strptime(str(row[2])[:-1], '%Y-%m-%d %H:%M:%S.%f')
+        if (row[1] not in a) or (a[row[1]][1] > dt):
+            a[row[1]] = (row[0], dt)
+
+    cursor.execute('select StateId from dbo.Images')
+    for key, value in a.items():
+        if key in info:
+            info[key]['image'] = img(value[0])
 
     return list(info.values())
 

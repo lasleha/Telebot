@@ -87,6 +87,6 @@ def check():
                 l = []
                 l.append(row[1])
                 lib[row[0]] = l
-    cursor.execute(f'update dbo.Favorites set IsChange = 0')
+    cursor.execute(f'update dbo.Favorites set IsChanged = 0')
     cnxn.commit()
     return lib

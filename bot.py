@@ -1,10 +1,9 @@
 import telebot
-import threading
 import sql
 
 from telebot import types
-from multiprocessing import Process, Value, current_process
-from time import sleep, ctime
+from multiprocessing import Process
+from time import sleep
 
 bot_token = '6131879353:AAGKP8nmK-6kksTxJWtymxCBgIWCIihOchs'
 

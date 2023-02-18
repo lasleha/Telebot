@@ -11,7 +11,7 @@ bot_token = '6131879353:AAGKP8nmK-6kksTxJWtymxCBgIWCIihOchs'
 
 bot = telebot.TeleBot(bot_token)
 
-info = dict()
+info = []
 
 
 @bot.message_handler(commands=['start'])
@@ -60,11 +60,17 @@ def create_caption(co):
     else:
         ready = "Не введён в эксплуатацию"
 
+    if co['is_repaired']:  # ремонт
+        repair = "Есть"
+    else:
+        repair = "Нет"
+
     caption = f"Адрес: {address}\n" \
               f"Площадь: {co['area']}\n" \
               f"Применение: {usage}\n" \
               f"Тип: {co_type}\n" \
               f"Готовность: {ready}\n" \
+              f"Ремонт: {repair}" \
               f"Цена: {co['price']}\n" \
               f"Перспективность: {co['perspective']}\n" \
               f"Риск: {co['risk']}\n"
@@ -84,19 +90,19 @@ def get_text_messages(message):
 
     elif text == 'Избранное':
 
-        if sql.check_usr(chat_id):
+        user_name = sql.check_usr(chat_id)
 
-            info = sql.favorite(chat_id)
+        if user_name is not None:
+
+            global info
+            info = sql.favorite(user_name)
 
             if len(info) != 0:
 
-                info_list = list(info.values())
-
-                caption = create_caption(info_list[0])
-
+                caption = create_caption(info[0])
                 bot.send_photo(chat_id=chat_id,
-                               caption=f'1 из {len(info_list)}\n{caption}',
-                               photo=info_list[0]['image'],
+                               caption=f'1 из {len(info)}\n{caption}',
+                               photo=info[0]['image'],
                                reply_markup=gen_markup())
 
     elif text == 'Техподдержка':
@@ -112,56 +118,57 @@ def callback_query(call):
 
     i = int(call.message.caption[:call.message.caption.find(' ')])
 
-    info_list = list(info.values())
-
     if call.data == "cb_left":
 
         if i != 1:
             i -= 1
 
-        caption = create_caption(info_list[i - 1])
+        caption = create_caption(info[i - 1])
 
         bot.edit_message_media(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                               media=types.InputMediaPhoto(info_list[i - 1]['image']), reply_markup=gen_markup())
+                               media=types.InputMediaPhoto(info[i - 1]['image']), reply_markup=gen_markup())
 
         bot.edit_message_caption(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                 caption=f'{i}/{len(info_list)}\n{caption}', reply_markup=gen_markup())
+                                 caption=f'{i} из {len(info)}\n{caption}', reply_markup=gen_markup())
 
     elif call.data == "cb_right":
 
-        if i != len(info_list):
+        if i != len(info):
             i += 1
 
-        caption = create_caption(info_list[i - 1])
+        caption = create_caption(info[i - 1])
 
         bot.edit_message_media(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                               media=types.InputMediaPhoto(info_list[i - 1]['image']), reply_markup=gen_markup())
+                               media=types.InputMediaPhoto(info[i - 1]['image']), reply_markup=gen_markup())
 
         bot.edit_message_caption(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                 caption=f'{i}/{len(info_list)}\n{caption}', reply_markup=gen_markup())
+                                 caption=f'{i} из {len(info)}\n{caption}', reply_markup=gen_markup())
 
 
-if __name__ == '__main__':
+def bot_work():
     bot.polling(none_stop=True, interval=0)
 
 
-# def bot():
-#     bot.polling(none_stop=True, interval=0)
-#
-#
-# def update():
-#     threading.Timer(1800.0, sql.check())
-#
-#
-# if __name__ == '__main__':
-#
-#     pr_bot = Process(target=bot)
-#     pr_update = Process(target=update)
-#
-#     pr_bot.start()
-#     pr_update.start()
-#
-#     pr_bot.join()
-#     pr_update.join()
+def update():
+
+    while True:
+        sleep(30)
+        lib = sql.check()
+        if len(lib) != 0:
+            for key, value in lib.items():
+                bot.send_photo(chat_id=key,
+                               caption=f'1 из {len(info)}\n{caption}',
+                               photo=info[0]['image'],
+                               reply_markup=gen_markup())
 
 
+if __name__ == '__main__':
+
+    pr_bot = Process(target=bot_work)
+    pr_update = Process(target=update)
+
+    pr_bot.start()
+    pr_update.start()
+
+    pr_bot.join()
+    pr_update.join()

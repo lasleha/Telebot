@@ -26,14 +26,13 @@ def check_usr(user_id):
     return None
 
 
-def favorite(user_name):
+def favorite(user_name, push):
     cursor = cnxn.cursor()
-    cursor.execute('select StateId, UserName from dbo.Favorites')
+    cursor.execute('select StateId, UserName, IsChanged from dbo.Favorites')
     states_id = []
     for row in cursor.fetchall():
-        if user_name == row[1]:
+        if (user_name == row[1]) and (not push or row[2]):
             states_id.append(row[0])
-
     print(states_id)
     cursor = cnxn.cursor()
     cursor.execute('select * from dbo.RealEstates')
@@ -73,15 +72,9 @@ def check():
     users = dict()
     for row in cursor.fetchall():
         users[row[0]] = row[1]
-    cursor.execute('select UserName, StateId, IsChanged from dbo.Favorites')
-    lib = dict([])
-    for row in cursor.fetchall():
-        if row[2]:
-            usn = users[row[0]]
-            if usn in lib:
-                lib[usn].append(row[1])
-            else:
-                lib[usn] = [row[1]]
+    lib = dict()
+    for k, v in users.items():
+        lib[v] = favorite(k, True)
     cursor.execute(f'update dbo.Favorites set IsChanged = 0')
     cnxn.commit()
     return lib

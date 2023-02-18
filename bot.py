@@ -95,7 +95,7 @@ def get_text_messages(message):
         if user_name is not None:
 
             global info
-            info = sql.favorite(user_name)
+            info = sql.favorite(user_name, False)
 
             if len(info) != 0:
 

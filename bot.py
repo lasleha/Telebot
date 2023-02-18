@@ -43,16 +43,6 @@ def create_caption(co):
     if co['number'] is not None:
         address += f", квартира {co['number']}"
 
-    if co['usage'] == 0:
-        usage = "Жилое"
-    else:
-        usage = "Коммерческое"
-
-    if co['type'] == 0:
-        co_type = "Здание"
-    else:
-        co_type = "Участок"
-
     if co['are_ready']:
         ready = "Введён в эксплуатацию"
     else:
@@ -65,10 +55,10 @@ def create_caption(co):
 
     caption = f"Адрес: {address}\n" \
               f"Площадь: {co['area']}\n" \
-              f"Применение: {usage}\n" \
-              f"Тип: {co_type}\n" \
+              f"Применение: {co['usage']}\n" \
+              f"Тип: {co['type']}\n" \
               f"Готовность: {ready}\n" \
-              f"Ремонт: {repair}" \
+              f"Ремонт: {repair}\n" \
               f"Цена: {co['price']}\n" \
               f"Перспективность: {co['perspective']}\n" \
               f"Риск: {co['risk']}\n"

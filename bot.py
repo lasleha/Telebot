@@ -1,6 +1,11 @@
 import telebot
-from telebot import types
+import threading
 import sql
+
+from telebot import types
+from multiprocessing import Process, Value, current_process
+from time import sleep, ctime
+
 
 bot_token = '6131879353:AAGKP8nmK-6kksTxJWtymxCBgIWCIihOchs'
 
@@ -78,17 +83,20 @@ def get_text_messages(message):
         bot.send_message(chat_id, f'Ваш id: {chat_id}')
 
     elif text == 'Избранное':
+
         if sql.check_usr(chat_id):
 
             info = sql.favorite(chat_id)
 
             if len(info) != 0:
 
-                caption = create_caption(info[0])
+                info_list = list(info.values())
+
+                caption = create_caption(info_list[0])
 
                 bot.send_photo(chat_id=chat_id,
-                               caption=f'1 из {len(info)}\n{caption}',
-                               photo=open(info[0]['image'], "rb"),
+                               caption=f'1 из {len(info_list)}\n{caption}',
+                               photo=info_list[0]['image'],
                                reply_markup=gen_markup())
 
     elif text == 'Техподдержка':
@@ -104,32 +112,56 @@ def callback_query(call):
 
     i = int(call.message.caption[:call.message.caption.find(' ')])
 
+    info_list = list(info.values())
+
     if call.data == "cb_left":
 
         if i != 1:
             i -= 1
 
-        caption = create_caption(info[i])
+        caption = create_caption(info_list[i - 1])
 
         bot.edit_message_media(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                               media=types.InputMediaPhoto(open(info[i - 1]['image'], "rb")), reply_markup=gen_markup())
+                               media=types.InputMediaPhoto(info_list[i - 1]['image']), reply_markup=gen_markup())
 
         bot.edit_message_caption(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                 caption=f'{i}/{len(info)}\n{caption}', reply_markup=gen_markup())
+                                 caption=f'{i}/{len(info_list)}\n{caption}', reply_markup=gen_markup())
 
     elif call.data == "cb_right":
 
-        if i != len(info):
+        if i != len(info_list):
             i += 1
 
-        caption = create_caption(info[i])
+        caption = create_caption(info_list[i - 1])
 
         bot.edit_message_media(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                               media=types.InputMediaPhoto(open(info[i - 1]['image'], "rb")), reply_markup=gen_markup())
+                               media=types.InputMediaPhoto(info_list[i - 1]['image']), reply_markup=gen_markup())
 
         bot.edit_message_caption(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                 caption=f'{i}/{len(info)}\n{caption}', reply_markup=gen_markup())
+                                 caption=f'{i}/{len(info_list)}\n{caption}', reply_markup=gen_markup())
 
 
 if __name__ == '__main__':
     bot.polling(none_stop=True, interval=0)
+
+
+# def bot():
+#     bot.polling(none_stop=True, interval=0)
+#
+#
+# def update():
+#     threading.Timer(1800.0, sql.check())
+#
+#
+# if __name__ == '__main__':
+#
+#     pr_bot = Process(target=bot)
+#     pr_update = Process(target=update)
+#
+#     pr_bot.start()
+#     pr_update.start()
+#
+#     pr_bot.join()
+#     pr_update.join()
+
+

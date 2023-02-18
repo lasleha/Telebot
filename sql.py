@@ -1,8 +1,6 @@
 import pyodbc
-import threading
 import PIL.Image as Image
 import io
-
 
 server = 'SQL8004.site4now.net'
 database = 'db_a93836_invest'
@@ -19,11 +17,12 @@ def img(path):
 
 
 def check_usr(user_id):
+    user_id = str(user_id)
     cursor = cnxn.cursor()
     cursor.execute('select PhoneNumber from dbo.AspNetUsers')
     users = []
     for row in cursor.fetchall():
-        users.append(row)
+        users.append(row[0])
     if user_id in users:
         return True
     else:
@@ -32,18 +31,21 @@ def check_usr(user_id):
 
 def favorite(user_id):
     cursor = cnxn.cursor()
+    cursor.execute('select Id, PhoneNumber from dbo.AspNetUsers')
+    for row in cursor.fetchall():
+        if row[1] == str(user_id):
+            user_id = row[0]
+    cursor = cnxn.cursor()
     cursor.execute('select * from dbo.Favorites')
     states_id = []
     for row in cursor.fetchall():
-        if row[0] == str(user_id):
-            states_id.append(row[1])
+        if row[0].lower() == user_id:
+            states_id.append(row[1].lower())
     cursor = cnxn.cursor()
     cursor.execute('select * from dbo.RealEstates')
-    info = dict({
-
-    })
+    info = dict(dict())
     for row in cursor.fetchall():
-        if row[0] in states_id:
+        if row[0].lower() in states_id:
             l = {
                 'address': row[1],
                 'pr2m': row[4],
@@ -56,25 +58,22 @@ def favorite(user_id):
                 'number': row[2],
                 'type': row[7],
                 'price': float(row[4]) * float(row[5]),
-                'image': ''
-                #добавить ремонт
+                'is_repaired': row[14]
             }
-            info[row[0]] = l
+            info[row[0].lower()] = l
     cursor.execute('select _Image, StateId from dbo.Images')
     a = []
     for row in cursor.fetchall():
         if row[1] not in a:
             a.append(row[1])
-            if row[1] in info.keys():
-                l = info[row[1]]
+            if row[1].lower() in info.keys():
+                l = info[row[1].lower()]
                 l['image'] = img(row[0])
-                info[row[1]] = l
+                info[row[1].lower()] = l
     return info
-#l = info['']
 
 
 def check():
-    # threading.Timer(1800.0, Check)
     cursor = cnxn.cursor()
     cursor.execute('select UserId, StateId, IsChanged from dbo.Favorites')
     lib = dict([])
@@ -91,6 +90,3 @@ def check():
     cursor.execute(f'update dbo.Favorites set IsChange = 0')
     cnxn.commit()
     return lib
-
-# 5708104256
-# 6131879353:AAGKP8nmK-6kksTxJWtymxCBgIWCIihOchs
